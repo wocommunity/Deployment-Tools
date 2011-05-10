@@ -85,7 +85,7 @@ if [ -e /Library/WebObjects/JavaApplications/wotaskd.woa ]; then
 	rm -rf /Library/WebObjects/JavaApplications/wotaskd.woa
 fi
 
-if [ -e /System/Library/WebObjects/JavaApplications ]; then
+if [ -e /Library/WebObjects/JavaApplications ]; then
 	mv -f wotaskd.woa /Library/WebObjects/JavaApplications/
 fi
 launchctl load /Library/LaunchDaemons/org.projectwonder.wotaskd.plist
