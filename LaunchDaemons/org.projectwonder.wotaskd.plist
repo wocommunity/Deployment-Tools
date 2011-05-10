@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple Computer//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>Disabled</key>
+	<false/>
+	<key>GroupName</key>
+	<string>appserverusr</string>
+	<key>Label</key>
+	<string>org.projectwonder.wotaskd</string>
+	<key>OnDemand</key>
+	<false/>
+	<key>Program</key>
+	<string>/Library/WebObjects/JavaApplications/wotaskd.woa/wotaskd</string>
+	<key>ProgramArguments</key>
+	<array>
+		<string>wotaskd</string>
+		<string>-WOPort</string>
+		<string>1085</string>
+	</array>
+	<key>ServiceIPC</key>
+	<false/>
+	<key>UserName</key>
+	<string>appserver</string>
+        <key>StandardOutPath</key>
+        <string>/Library/WebObjects/Logs/womonitor.log</string>
+        <key>StandardErrorPath</key>
+        <string>/Library/WebObjects/Logs/womonitor.log</string>
+</dict>
+</plist>
+
