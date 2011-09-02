@@ -6,21 +6,32 @@
 #  5) Run without a GUI
 #  6) Be usable to update (reinstall) the apps and not just for the initial installation.  This is just a result of the above conditions really.
 #  7) EXTRA: be usable on Linux and Windows too
+#  8) Deal with changes to Apache configuration file also.
+
+echo ""
+echo "Welcome to the WebObjects Deployment Installation Script, courtesy of developers at wocommunity.org."
+echo ""
+echo "If you have questions about this script or about WebObjects installation in general, go to http://www.community.org"
+echo "or to http://wiki.objectstyle.org/confluence/display/WO/Deployment."
+echo ""
+echo "Thank you for your support."
+echo ""
 
 if [ `whoami` != "root" ]; then
-echo ""
-echo "THIS COMMAND MUST BE RUN WITH SUDO!"	
-echo ""
-exit 1
+    echo ""
+    echo "THIS COMMAND MUST BE RUN WITH SUDO!"	
+    echo ""
+    exit 1
 fi
 
-echo ""
-echo "WARNING: this will replace any installed versions of wotaskd and JavaMonitor and their launch scripts"
+echo "WARNING: this will replace any installed versions of wotaskd and JavaMonitor and their launch scripts."
 echo -n "Are you sure you want to continue? [y/n]: "
 read CONTINUE
-if [ $CONTINUE != "y" ]; then
-exit
+if [ "$CONTINUE" != "y" ]; then
+    exit
 fi
+
+exit 0
 
 echo ""
 echo -n "Are you going to run JavaMonitor on this machine [y/n]: "
