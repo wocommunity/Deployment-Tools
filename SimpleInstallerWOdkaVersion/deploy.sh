@@ -8,7 +8,7 @@
 echo "*********************************************************";
 echo "WebObject Deployment for OSX Lion Server";
 echo "2011 by WOdka Team";
-echo "v. 1.2";
+echo "v. 1.2.1";
 echo "*********************************************************";
 echo ""
 
@@ -156,7 +156,7 @@ if [ $USE_MONITOR == "y" ]; then
 		tar xfz SampleDeployTest-0iw-Application.tar.gz  -C /Library/WebObjects/Application
 		tar xfz SampleDeployTest-0iw-WebServerResources.tar.gz -C /Library/WebObjects/WebServerResource
 	
-		echo "Installing JavaMonitor"
+		echo "Installing Sample Application"
 		chmod -R 755 /Library/WebObjects/Application/SampleDeployTest-0iw.woa
 		chown -R _appserver:wheel /Library/WebObjects/Application/SampleDeployTest-0iw.woa
 		chmod -R 755 /Library/WebObjects/WebServerResource/SampleDeployTest-0iw.woa
