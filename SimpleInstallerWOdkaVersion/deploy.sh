@@ -8,7 +8,7 @@
 echo "*********************************************************";
 echo "WebObject Deployment for OSX Lion Server";
 echo "2011 by WOdka Team";
-echo "v. 1.2.1";
+echo "v. 1.2.2";
 echo "*********************************************************";
 echo ""
 
@@ -216,6 +216,13 @@ echo "Include /Library/WebObjects/Adaptors/wo_expires.conf" >> httpd.conf
 echo "Include /Library/WebObjects/Adaptors/wo_apache.conf" >> httpd.conf
 
 apachectl restart
+
+################################################
+## Console : to make it easier to view the Log
+################################################
+
+cd /Library/Logs
+sudo ln -s /Library/WebObjects/Logs/ WebObjects
 
 ################################################
 ## Create SymbolicLink for WebServerResource
