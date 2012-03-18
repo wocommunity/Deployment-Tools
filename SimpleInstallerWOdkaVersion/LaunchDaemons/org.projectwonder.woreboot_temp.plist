@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>Label</key>
+	<string>org.projectwonder.woreboot.plist</string>
+	<key>ProgramArguments</key>
+	<array>
+		<string>/bin/sh</string>
+		<string>-c</string>
+		<string>sleep 8;cd /Library/LaunchDaemons;launchctl unload org.projectwonder.wotaskd.plist;launchctl unload org.projectwonder.womonitor.plist;sleep 2;/usr/sbin/apachectl graceful;echo &apos;WO Reboot Execute&apos; | mail -s &apos;WO Reboot&apos; mailaddress;launchctl load org.projectwonder.wotaskd.plist;launchctl load org.projectwonder.womonitor.plist;sleep 30;</string>
+	</array>
+	<key>RunAtLoad</key>
+	<true/>
+	<key>AbandonProcessGroup</key>
+	<true/>
+</dict>
+</plist>
