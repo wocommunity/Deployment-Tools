@@ -2,11 +2,10 @@
 #  1) Identify (or at least warn) if it will overwrite an existing installation
 #  2) Make JavaMonitor optional
 #  3) Stop the existing apps if they are running and restart them at the end
-#  4) Handle varying file locations and names.  On 10.4 the launchd scripts have different filenames.
-#  5) Run without a GUI
-#  6) Be usable to update (reinstall) the apps and not just for the initial installation.  This is just a result of the above conditions really.
-#  7) EXTRA: be usable on Linux and Windows too
-#  8) Deal with changes to Apache configuration file also.
+#  4) Run without a GUI
+#  5) Be usable to update (reinstall) the apps and not just for the initial installation.  This is just a result of the above conditions really.
+
+# TODO: Deal with changes to Apache configuration file also.
 
 echo ""
 echo "Welcome to the WebObjects Deployment Installation Script, courtesy of developers at wocommunity.org."
@@ -31,8 +30,6 @@ if [ "$CONTINUE" != "y" ]; then
     exit
 fi
 
-exit 0
-
 echo ""
 echo -n "Are you going to run JavaMonitor on this machine [y/n]: "
 read USE_MONITOR
@@ -41,12 +38,12 @@ cd /Library/LaunchDaemons
 
 if [ ! -f org.projectwonder.wotaskd.plist ]; then
 echo "Downloading wotaskd launch"
-curl -C - -O https://github.com/wocommunity/Deployment-Tools/LaunchDaemons/org.projectwonder.wotaskd.plist
+curl --insecure -C - -O https://raw.github.com/wocommunity/Deployment-Tools/master/OfficialInstaller/LaunchDaemons/org.projectwonder.wotaskd.plist
 fi
 
 if [ ! -f org.projectwonder.womonitor.plist ]; then
 echo "Downloading womonitor launch"
-curl -C - -O https://github.com/wocommunity/Deployment-Tools/LaunchDaemons/org.projectwonder.wotaskd.plist
+curl --insecure -C - -O https://raw.github.com/wocommunity/Deployment-Tools/master/OfficialInstaller/LaunchDaemons/org.projectwonder.womonitor.plist
 fi
 
 cd /tmp
@@ -67,9 +64,7 @@ if [ $USE_MONITOR == "y" ]; then
         rm -rf /Library/WebObjects/JavaApplications/JavaMonitor.woa
 	fi
 	
-	if [ !-e /Library/WebObjects/JavaApplications ]; then
         mkdir -p /Library/WebObjects/JavaApplications
-	fi
 
 	launchctl unload /Library/LaunchDaemons/org.projectwonder.womonitor.plist
 	rm -rf /Library/WebObjects/JavaApplications/JavaMonitor.woa
