@@ -17,15 +17,17 @@
 		<string>wotaskd</string>
 		<string>-WOPort</string>
 		<string>1085</string>
+		<string>-_DeploymentDebugging</string>
+		<string>false</string>
 	</array>
 	<key>ServiceIPC</key>
 	<false/>
 	<key>UserName</key>
 	<string>appserver</string>
         <key>StandardOutPath</key>
-        <string>/Library/WebObjects/Logs/womonitor.log</string>
+        <string>/Library/WebObjects/Logs/wotaskd.log</string>
         <key>StandardErrorPath</key>
-        <string>/Library/WebObjects/Logs/womonitor.log</string>
+        <string>/Library/WebObjects/Logs/wotaskd.log</string>
 </dict>
 </plist>
 

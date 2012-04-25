@@ -17,6 +17,8 @@
 		<string>JavaMonitor</string>
 		<string>-WOPort</string>
 		<string>56789</string>
+		<string>-_DeploymentDebugging</string>
+		<string>false</string>
 	</array>
 	<key>ServiceIPC</key>
 	<false/>
