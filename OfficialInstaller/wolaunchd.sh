@@ -48,42 +48,76 @@ fi
 
 cd /tmp
 
-
+# Download everything first so that we minimize downtime (in case we're updating a production server)
 if [ $USE_MONITOR == "y" ]; then
-
 	echo "Downloading JavaMonitor"
-	curl -O http://webobjects.mdimension.com/hudson/job/Wonder/lastSuccessfulBuild/artifact/dist/JavaMonitor.woa.tar.gz
+	curl -O http://jenkins.wocommunity.org/job/WonderIntegration/lastSuccessfulBuild/artifact/Root/Roots/JavaMonitor.tar.gz
 	
 	echo "Unpacking JavaMonitor"
-	tar xzf JavaMonitor.woa.tar.gz
+	tar xzf JavaMonitor.tar.gz
 	chmod -R 755 JavaMonitor.woa
 	chgrp -R wheel JavaMonitor.woa
-	
+fi
+
+echo "Downloading wotaskd"
+curl -O http://jenkins.wocommunity.org/job/WonderIntegration/lastSuccessfulBuild/artifact/Root/Roots/wotaskd.tar.gz
+
+echo "Unpacking wotaskd"
+tar xzf wotaskd.tar.gz
+chmod -R 755 wotaskd.woa
+chgrp -R wheel wotaskd.woa
+
+# Remove OLD applications and launchd scripts
+if [ -f /System/Library/LaunchDaemons/com.apple.webobjects.wotaskd.plist ]; then
+    launchctl unload /System/Library/LaunchDaemons/com.apple.webobjects.wotaskd.plist
+    launchctl unload /System/Library/LaunchDaemons/com.apple.webobjects.womonitor.plist
+
+    rm -f /System/Library/LaunchDaemons/com.apple.webobjects.wotaskd.plist
+    rm -f /System/Library/LaunchDaemons/com.apple.webobjects.womonitor.plist
+fi
+
+if [ -f /Library/LaunchDaemons/com.apple.webobjects.wotaskd.plist ]; then
+    launchctl unload /Library/LaunchDaemons/com.apple.webobjects.wotaskd.plist
+    launchctl unload /Library/LaunchDaemons/com.apple.webobjects.womonitor.plist
+
+    rm -f /Library/LaunchDaemons/com.apple.webobjects.wotaskd.plist
+    rm -f /Library/LaunchDaemons/com.apple.webobjects.womonitor.plist
+fi
+
+rm -rf /System/Library/WebObjects/JavaApplications/JavaMonitor.woa
+rm -rf /System/Library/WebObjects/JavaApplications/wotaskd.woa
+
+mkdir -p /Library/WebObjects/Configuration/
+mkdir -p /Library/WebObjects/Applications/
+mkdir -p /Library/WebObjects/Logs
+mkdir -p /Library/WebObjects/JavaApplications
+mkdir -p /System/Library/WebObjects/Adaptors/Apache2.2
+mkdir -p /etc/WebObjects
+
+chown appserver /Library/WebObjects/Configuration
+chown appserver /Library/WebObjects/Applications
+chown appserver /Library/WebObjects/Logs
+chown appserver /Library/WebObjects/JavaApplications
+
+if [ $USE_MONITOR == "y" ]; then
 	echo "Installing JavaMonitor"
 	if [ -e /Library/WebObjects/JavaApplications/JavaMonitor.woa ]; then
         rm -rf /Library/WebObjects/JavaApplications/JavaMonitor.woa
 	fi
 	
-        mkdir -p /Library/WebObjects/JavaApplications
-
 	launchctl unload /Library/LaunchDaemons/org.projectwonder.womonitor.plist
 	rm -rf /Library/WebObjects/JavaApplications/JavaMonitor.woa
 	mv -f JavaMonitor.woa /Library/WebObjects/JavaApplications/
 	
+	mkdir -p /Library/WebServer/Documents/WebObjects/JavaMonitor.woa/Contents/
+	ln -s /Library/WebObjects/JavaApplications/JavaMonitor.woa/Contents/WebServerResources /Library/WebServer/Documents/WebObjects/JavaMonitor.woa/Contents/
+
 	echo "Starting JavaMonitor"
 	launchctl load /Library/LaunchDaemons/org.projectwonder.womonitor.plist
 	
-	rm JavaMonitor.woa.tar.gz
+	rm JavaMonitor.tar.gz
 fi
 
-
-echo "Downloading wotaskd"
-curl -O http://webobjects.mdimension.com/hudson/job/Wonder/lastSuccessfulBuild/artifact/dist/wotaskd.woa.tar.gz
-
-echo "Unpacking wotaskd"
-tar xzf wotaskd.woa.tar.gz
-chmod -R 755 wotaskd.woa
-chgrp -R wheel wotaskd.woa
 
 echo "Installing wotaskd"
 launchctl unload /Library/LaunchDaemons/org.projectwonder.wotaskd.plist
@@ -95,5 +129,37 @@ if [ -e /Library/WebObjects/JavaApplications ]; then
 	mv -f wotaskd.woa /Library/WebObjects/JavaApplications/
 fi
 launchctl load /Library/LaunchDaemons/org.projectwonder.wotaskd.plist
-rm wotaskd.woa.tar.gz
+rm wotaskd.tar.gz
 
+
+function configureApache2dot2() {
+  if [ -d /etc/apache2 ]; then
+	if [ ! -f /System/Library/WebObjects/Adaptors/Apache2.2/mod_WebObjects.so ]; then
+		echo "Downloading mod_WebObjects"
+		curl -O http://wocommunity.org/documents/tools/mod_WebObjects/Apache2.2/macosx/10.6/mod_WebObjects.so
+		chmod a+x mod_WebObjects.so
+		mv mod_WebObjects.so /System/Library/WebObjects/Adaptors/Apache2.2/
+	fi
+
+	if [ ! -f /System/Library/WebObjects/Adaptors/Apache2.2/apache.conf ]; then
+		echo "Downloading apache.conf for WebObjects"
+		curl -O https://raw.github.com/wocommunity/Deployment-Tools/master/OfficialInstaller/apache.conf
+		mv apache.conf /System/Library/WebObjects/Adaptors/Apache2.2/
+	fi
+
+	IS_APACHE_CONFIGURED=`grep "Include /System/Library/WebObjects/Adaptors/Apache2.2/apache.conf" /etc/apache2/httpd.conf`
+	if [ "$IS_APACHE_CONFIGURED" == "" ]; then
+		echo "Configuring and restarting apache. You may need to change or comment out the ScriptAlias directive in http.conf"
+		echo "Include /System/Library/WebObjects/Adaptors/Apache2.2/apache.conf" >> /etc/apache2/httpd.conf
+		apachectl restart
+	fi
+  fi
+}
+
+#configureApache2dot2
+
+echo ""
+ps auxww | grep "\-WOPort 1085" | grep -v "grep"
+echo ""
+ps auxww | grep "\-WOPort 56789" | grep -v "grep"
+echo""
