@@ -1,3 +1,5 @@
 This Perl script can be used to automate deployments from Jenkins.
 
+FYI, you can't use this script on Windows
+
 Please see http://wiki.wocommunity.org/display/WO/Automating+Application+Deployment+From+Jenkins+or+Hudson
