@@ -56,6 +56,7 @@ if [ $USE_MONITOR == "y" ]; then
 	echo "Unpacking JavaMonitor"
 	tar xzf JavaMonitor.tar.gz
 	chmod -R 755 JavaMonitor.woa
+	chown -R appserver wotaskd.woa
 	chgrp -R wheel JavaMonitor.woa
 fi
 
@@ -65,6 +66,7 @@ curl -O http://jenkins.wocommunity.org/job/WonderIntegration/lastSuccessfulBuild
 echo "Unpacking wotaskd"
 tar xzf wotaskd.tar.gz
 chmod -R 755 wotaskd.woa
+chown -R appserver wotaskd.woa
 chgrp -R wheel wotaskd.woa
 
 # Remove OLD applications and launchd scripts
@@ -85,7 +87,10 @@ if [ -f /Library/LaunchDaemons/com.apple.webobjects.wotaskd.plist ]; then
 fi
 
 rm -rf /System/Library/WebObjects/JavaApplications/JavaMonitor.woa
-rm -rf /System/Library/WebObjects/JavaApplications/wotaskd.woa
+rm -rf /System/Library/WebObjects/JavaApplications/wotaskd.woa/Contents/
+rm -rf /System/Library/WebObjects/JavaApplications/wotaskd.woa/wotaskd
+rm -rf /System/Library/WebObjects/JavaApplications/wotaskd.woa/wotaskd.cmd
+# leave WOBootstrap.jar in case this is a development machine and this is needed for woproject
 
 mkdir -p /Library/WebObjects/Configuration/
 mkdir -p /Library/WebObjects/Applications/
@@ -162,4 +167,4 @@ echo ""
 ps auxww | grep "\-WOPort 1085" | grep -v "grep"
 echo ""
 ps auxww | grep "\-WOPort 56789" | grep -v "grep"
-echo""
+echo ""
