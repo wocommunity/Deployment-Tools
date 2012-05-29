@@ -9,10 +9,16 @@ use POSIX;
 use Getopt::Long;
 use vars qw($opt_U $opt_n $opt_p $opt_P);
 
+$PATH_TO_WOROOT = "/opt/Local/Library/WebObjects";
 $PATH_TO_WSR = "/opt/Local/Library/WebServer/Documents/WebObjects/";
-$PATH_TO_APP = "/opt/Local/Library/WebObjects/Applications/";
+$PATH_TO_APP = $PATH_TO_WOROOT . "/Applications/";
+$PATH_TO_LOGS = $PATH_TO_WOROOT . "/Logs/";
 $MONITOR_HOST = "your.server.com";
 $APP_USERNAME = "appserver";
+$PATH_TO_SSHKEY = "/var/lib/jenkins/.ssh/id_rsa";
+$PATH_TO_SSH = "/usr/bin/ssh";
+$PATH_TO_RSYNC = "/usr/bin/rsync";
+$OS_TYPE = "unix"; # change it to "mac" if you deploy on OS X
 
 Getopt::Long::Configure('bundling');
 GetOptions
@@ -43,12 +49,16 @@ my $app_new_name;
 my $current_time = ($year + 1900) . ($mon + 1) . $mday . $hour . $min;
 
 my $url_to_Monitor = $opt_U . "/ra/mApplications/";
-my $url_end = ".json" . "?pw=" . $opt_p;
+my $url_end = ".json";
 my $app_path = $opt_P;
 my $app_name = $opt_n;
 
+if ($opt_U =~ m/http\:\/\/(.*)\:.*\/.*/gi) {
+	$MONITOR_HOST = $1;
+}
+
 if (defined($opt_p)) {
-	$url_end . "&pw=" . $opt_p;
+	$url_end = $url_end . "&pw=" . $opt_p;
 }
 if (defined($opt_w)) {
 	$wsr_present = 1;
@@ -81,10 +91,13 @@ my %appArgs = ();
 $appArgs{"id"} = $app_name;
 $appArgs{"type"} = "MApplication";
 $appArgs{"name"} = $app_name;
-$appArgs{"unixOutputPath"} = "/opt/Local/Library/WebObjects/Logs";
-$appArgs{"unixPath"} = "/opt/Local/Library/WebObjects/Applications/" . $app_bin_name . "/" . $script_name;
-$appArgs{"macOutputPath"} = "/Library/WebObjects/Logs";
-$appArgs{"macPath"} = "/Library/WebObjects/Applications/" . $app_bin_name . "/" . $script_name;
+if ($OS_TYPE eq "mac") {
+	$appArgs{"macOutputPath"} = $PATH_TO_LOGS;
+	$appArgs{"macPath"} = $PATH_TO_APP . $app_bin_name . "/" . $script_name;
+} else {
+	$appArgs{"unixOutputPath"} = $PATH_TO_LOGS;
+	$appArgs{"unixPath"} = $PATH_TO_APP . $app_bin_name . "/" . $script_name;
+}
 
 print "Checking if the app already exist in configuration...\n";
 
@@ -93,12 +106,16 @@ $client->GET($url_to_Monitor . $app_name . $url_end);
 if ($client->responseCode() >= 200 and $client->responseCode() < 400) {
 	$appExists = 1;
 	# App exists, so let's refuse new sessions
-	$client->GET($opt_U . "/admin/turnRefuseNewSessionsOn?type=app&name=" . $app_name);
+	my $refuseNewSessionsUrl = $opt_U . "/admin/turnRefuseNewSessionsOn?type=app&name=" . $app_name;
+	if (defined($opt_p)) {
+		$refuseNewSessionsUrl = $refuseNewSessionsUrl . "&pw=" . $opt_p;
+	}
+	$client->GET($refuseNewSessionsUrl);
 } 
 
 print "Sending the build to the server...\n";
 
-my $rsync = File::Rsync->new( { archive => 1, compress => 1, rsh => '/usr/bin/ssh', 'rsync-path' => '/usr/bin/rsync', verbose => 0 } );
+my $rsync = File::Rsync->new( { archive => 1, compress => 1, rsh => $PATH_TO_SSH, 'rsync-path' => $PATH_TO_RSYNC, verbose => 0 } );
 $rsync->exec( {src => $app_path, dest => $APP_USERNAME . "\@" . $MONITOR_HOST . ":/tmp/" }) or die $rsync->err;
 if ($wsr_present == 1) {
 	$rsync->exec( {src => $wsr_path, dest => $APP_USERNAME . "\@" . $MONITOR_HOST . ":/tmp/" }) or die $rsync->err;
@@ -106,14 +123,14 @@ if ($wsr_present == 1) {
 
 print "Moving the build and redoing the symlink...\n";
 
-my $ssh = Net::SSH::Perl->new($MONITOR_HOST, "identity_files" => [ '/var/lib/hudson/.ssh/id_rsa' ], "debug" => 0);
+my $ssh = Net::SSH::Perl->new($MONITOR_HOST, "identity_files" => [ $PATH_TO_SSHKEY ], "debug" => 0);
 $ssh->login($APP_USERNAME);
 if ($is_archive == 1) {
 	my($stdout, $stderr, $exit) = $ssh->cmd("cd /tmp; tar zxf /tmp/" . $archive_name);
 }
 $app_new_name = $app_bin_name . "-" . $current_time;
 my($stdout, $stderr, $exit) = $ssh->cmd("mv /tmp/" . $app_bin_name . " " . $PATH_TO_APP . $app_new_name);
-my($stdout, $stderr, $exit) = $ssh->cmd("rm " . $PATH_TO_APP . $app_bin_name);
+my($stdout, $stderr, $exit) = $ssh->cmd("rm -rf " . $PATH_TO_APP . $app_bin_name);
 my($stdout, $stderr, $exit) = $ssh->cmd("ln -s " . $PATH_TO_APP . $app_new_name . " " . $PATH_TO_APP . $app_bin_name);
 
 if ($wsr_present == 1) {
@@ -122,7 +139,7 @@ if ($wsr_present == 1) {
 	}
 	my($stdout, $stderr, $exit) = $ssh->cmd("mv /tmp/" . $app_bin_name . " " . $PATH_TO_APP . $app_new_name);
 	my($stdout, $stderr, $exit) = $ssh->cmd("ln -s " . $PATH_TO_WSR . $app_bin_name . " " . $PATH_TO_WSR . $app_bin_name);
-        my($stdout, $stderr, $exit) = $ssh->cmd("chmod -R o+r,o+x " + $PATH_TO_WSR);
+    my($stdout, $stderr, $exit) = $ssh->cmd("chmod -R o+r,o+x " + $PATH_TO_WSR);
 } else {
 	my($stdout, $stderr, $exit) = $ssh->cmd("cp -rp " . $PATH_TO_APP . $app_new_name . " " . $PATH_TO_WSR . $app_new_name);
 	my($stdout, $stderr, $exit) = $ssh->cmd("rm " . $PATH_TO_WSR . $app_bin_name);
@@ -134,17 +151,23 @@ if ($wsr_present == 1) {
 	my($stdout, $stderr, $exit) = $ssh->cmd("rm -r " . $PATH_TO_WSR . $app_new_name . "/Contents/Info.plist");
 }
 
-print "Restarting the app...\n";
 
 if ($appExists == 0) {
-	# Let's add the app
+	print "Adding the app to JavaMonitor and starting it...\n";
 	$client->POST($url_to_Monitor . ".json?pw=" . $opt_p, $json->encode( \%appArgs ));
 	if ($client->responseCode() >= 200 and $client->responseCode() < 400) {
 		$client->GET($url_to_Monitor . $app_name . "/addInstance" . $url_end);
 	}
 } else {
-	$client->GET($opt_U . "/admin/stop?type=app&name=" . $app_name);
-	$client->GET($opt_U . "/admin/start?type=app&name=" . $app_name);
+	print "Restarting the app...\n";
+	my $stopUrl = $opt_U . "/admin/stop?type=app&name=" . $app_name;
+	my $startUrl = $opt_U . "/admin/start?type=app&name=" . $app_name;
+	if (defined($opt_p)) {
+		$stopUrl = $stopUrl . "&pw=" . $opt_p;
+		$startUrl = $startUrl . "&pw=" . $opt_p;
+	}
+	$client->GET($stopUrl);
+	$client->GET($startUrl);
 }
 
 print "All done!\n";
@@ -153,17 +176,3 @@ sub print_usage () {
 	print "Usage: monitor.pl -U <urlToJavaMonitor> -n <appName> -P <pathToApplicationBundle> [-p <password>]\n";
     exit;
 }
-
-#$client->GET('http://127.0.0.1/cgi-bin/WebObjects/JavaMonitor.woa/-8081/admin/info?type=all');
-#@result = $json->decode( $client->responseContent() );
-#foreach my $application(@{$json->decode( $client->responseContent() )}) {
-#	print $application->{name},"\n";
-#	print $application->{state},"\n";
-#	print $application->{scheduled},"\n";
-#	print $application->{autoRecover},"\n";
-#}
-
-# http://search.cpan.org/~mcrawfor/REST-Client-88/lib/REST/Client.pm
-
-
-# http://search.cpan.org/~salva/Net-SFTP-Foreign-1.57/lib/Net/SFTP/Foreign.pm
