@@ -56,7 +56,7 @@ if [ $USE_MONITOR == "y" ]; then
 	echo "Unpacking JavaMonitor"
 	tar xzf JavaMonitor.tar.gz
 	chmod -R 755 JavaMonitor.woa
-	chown -R appserver wotaskd.woa
+	chown -R appserver JavaMonitor.woa
 	chgrp -R wheel JavaMonitor.woa
 fi
 
