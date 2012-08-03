@@ -60,7 +60,8 @@ if ($opt_U =~ m/http\:\/\/(.*)\:.*\/.*/gi) {
 if (defined($opt_p)) {
 	$url_end = $url_end . "&pw=" . $opt_p;
 }
-if (defined($opt_w)) {
+
+if (defined($opt_W)) {
 	$wsr_present = 1;
 	$wsr_path = $opt_W;
 }
@@ -83,8 +84,7 @@ if (($app_bin_name  =~ m/(.*)\.woa.*\.tgz/gi) or ($app_bin_name =~ m/(.*)\.woa.*
 my $wsr_archive_name = $splitResults[$#splitResults];
 if (($wsr_archive_name  =~ m/(.*)\.woa.*\.tgz/gi) or ($wsr_archive_name =~ m/(.*)\.woa.*\.tar.gz/gi) or ($wsr_archive_name =~ m/(.*)\-WebServerResources\.tar\.gz/gi) or ($wsr_archive_name =~ m/(.*)\-WebServerResources\.tgz/gi)) { 
 	$is_wsr_archive = 1;
-	$wsr_archive_name = $wsr_archive_name;
-	$wsr_archive_name = $1 . ".woa";
+	$wsr_archive_name = $1 . "-WebServerResources.tar.gz";
 }
 
 my %appArgs = ();
@@ -135,10 +135,11 @@ my($stdout, $stderr, $exit) = $ssh->cmd("ln -s " . $PATH_TO_APP . $app_new_name 
 
 if ($wsr_present == 1) {
 	if ($is_wsr_archive == 1) {
-		my($stdout, $stderr, $exit) = $ssh->cmd("cd /tmp; tar zxf /tmp/" . $wsr_path);	
+		my($stdout, $stderr, $exit) = $ssh->cmd("cd /tmp; tar zxf /tmp/" . $wsr_archive_name);	
 	}
-	my($stdout, $stderr, $exit) = $ssh->cmd("mv /tmp/" . $app_bin_name . " " . $PATH_TO_APP . $app_new_name);
-	my($stdout, $stderr, $exit) = $ssh->cmd("ln -s " . $PATH_TO_WSR . $app_bin_name . " " . $PATH_TO_WSR . $app_bin_name);
+	my($stdout, $stderr, $exit) = $ssh->cmd("mv /tmp/" . $app_bin_name . " " . $PATH_TO_WSR . $app_new_name);
+	my($stdout, $stderr, $exit) = $ssh->cmd("rm -rf " . $PATH_TO_WSR . $app_bin_name);
+	my($stdout, $stderr, $exit) = $ssh->cmd("ln -s " . $PATH_TO_WSR . $app_new_name . " " . $PATH_TO_WSR . $app_bin_name);
     my($stdout, $stderr, $exit) = $ssh->cmd("chmod -R o+r,o+x " + $PATH_TO_WSR);
 } else {
 	my($stdout, $stderr, $exit) = $ssh->cmd("cp -rp " . $PATH_TO_APP . $app_new_name . " " . $PATH_TO_WSR . $app_new_name);
