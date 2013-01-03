@@ -7,8 +7,8 @@
 
 echo "*********************************************************";
 echo "WebObject Deployment for OSX Lion Server";
-echo "2011-12 by WOdka Team (Ken Ishimoto)";
-echo "v. 1.3 Last Modify : 2012-03-18";
+echo "2011-13 by WOdka Team (Ken Ishimoto)";
+echo "v. 1.4 Last Modify : 2013-01-01";
 echo "*********************************************************";
 echo ""
 
@@ -177,8 +177,8 @@ if [ $USE_DEMO == "y" ]; then
 		curl -O http://dl.dropbox.com/u/1548210/Downloads/WODeployment/SampleDeployNoDB-0iw-WebServerResources.tar.gz
 	
 		echo "Unpacking Sample Application"
-		tar xfz SampleDeployNoDB-0iw-Application.tar.gz  -C /opt/Application
-		tar xfz SampleDeployNoDB-0iw-WebServerResources.tar.gz -C /opt/WebServerResource
+		tar xfz SampleDeployNoDB-0iw-Application.tar.gz  -C /Library/WebObjects/Application
+		tar xfz SampleDeployNoDB-0iw-WebServerResources.tar.gz -C /Library/WebObjects/WebServerResource
 		
 		echo "Installing Sample Application"
 		chmod -R 755 /Library/WebObjects/Application/SampleDeployNoDB-0iw.woa
