@@ -8,7 +8,7 @@
 echo "*********************************************************";
 echo "WebObject Deployment for OSX Lion Server";
 echo "2011-13 by WOdka Team (Ken Ishimoto)";
-echo "v. 1.4 Last Modify : 2013-01-01";
+echo "v. 1.5 Last Modify : 2013-05-22";
 echo "*********************************************************";
 echo ""
 
@@ -38,7 +38,7 @@ if [ ! -d /Library/WebObjects ]; then
 	mkdir /Library/WebObjects/Logs
 	mkdir /Library/WebObjects/Adaptors
 	mkdir /Library/WebObjects/Deployment
-	mkdir /Library/WebObjects/Application
+	mkdir /Library/WebObjects/Applications
 	mkdir /Library/WebObjects/WebServerResource
     chown -R _appserver:_appserveradm /Library/WebObjects
     chmod -R 755 /Library/WebObjects
@@ -53,17 +53,17 @@ cd /Library/LaunchDaemons
 
 if [ ! -f org.projectwonder.wotaskd.plist ]; then
 	echo "Downloading wotaskd launch"
-	curl -C - -O http://dl.dropbox.com/u/1548210/Downloads/WODeployment/org.projectwonder.wotaskd.plist
+	curl -C - -O https://dl.dropboxusercontent.com/u/1548210/Downloads/WODeployment/org.projectwonder.wotaskd.plist
 fi
 
 if [ ! -f org.projectwonder.womonitor.plist ]; then
 	echo "Downloading womonitor launch"
-	curl -C - -O http://dl.dropbox.com/u/1548210/Downloads/WODeployment/org.projectwonder.womonitor.plist
+	curl -C - -O https://dl.dropboxusercontent.com/u/1548210/Downloads/WODeployment/org.projectwonder.womonitor.plist
 fi
 
 if [ ! -f org.projectwonder.woreboot_temp.plist ]; then
 	echo "Downloading woreboot launch"
-	curl -C - -O http://dl.dropbox.com/u/1548210/Downloads/WODeployment/org.projectwonder.woreboot_temp.plist
+	curl -C - -O https://dl.dropboxusercontent.com/u/1548210/Downloads/WODeployment/org.projectwonder.woreboot_temp.plist
 fi
 
 ################################################
@@ -92,7 +92,7 @@ if [ ! -d /Library/WebObjects/Deployment/wotaskd.woa ]; then
 	cd /tmp
 
 	echo "Downloading wotaskd"
-	curl -O http://dl.dropbox.com/u/1548210/Downloads/WODeployment/wotaskd.tar.gz
+	curl -O https://dl.dropboxusercontent.com/u/1548210/Downloads/WODeployment/wotaskd.tar.gz
 
 	echo "Unpacking wotaskd"
 	tar xzf wotaskd.tar.gz
@@ -120,7 +120,7 @@ if [ ! -d /Library/WebObjects/Deployment/JavaMonitor.woa ]; then
 	cd /tmp
 
 	echo "Downloading JavaMonitor"
-	curl -O http://dl.dropbox.com/u/1548210/Downloads/WODeployment/JavaMonitor.tar.gz
+	curl -O https://dl.dropboxusercontent.com/u/1548210/Downloads/WODeployment/JavaMonitor.tar.gz
 
 	echo "Unpacking JavaMonitor"
 	tar xzf JavaMonitor.tar.gz
@@ -153,19 +153,19 @@ if [ $USE_DEMO == "y" ]; then
 		cd /tmp
 		
 		echo "Downloading Sample Application"
-		curl -O http://dl.dropbox.com/u/1548210/Downloads/WODeployment/SampleDeployTest-0iw-Application.tar.gz
-		curl -O http://dl.dropbox.com/u/1548210/Downloads/WODeployment/SampleDeployTest-0iw-WebServerResources.tar.gz
+		curl -O https://dl.dropboxusercontent.com/u/1548210/Downloads/WODeployment/SampleDeployTest-0iw-Application.tar.gz
+		curl -O https://dl.dropboxusercontent.com/u/1548210/Downloads/WODeployment/SampleDeployTest-0iw-WebServerResources.tar.gz
 	
 		echo "Unpacking Sample Application"
-		tar xfz SampleDeployTest-0iw-Application.tar.gz  -C /Library/WebObjects/Application
+		tar xfz SampleDeployTest-0iw-Application.tar.gz  -C /Library/WebObjects/Applications
 		tar xfz SampleDeployTest-0iw-WebServerResources.tar.gz -C /Library/WebObjects/WebServerResource
 	
 		echo "Installing Sample Application"
-		chmod -R 755 /Library/WebObjects/Application/SampleDeployTest-0iw.woa
-		chown -R _appserver:wheel /Library/WebObjects/Application/SampleDeployTest-0iw.woa
+		chmod -R 755 /Library/WebObjects/Applications/SampleDeployTest-0iw.woa
+		chown -R _appserver:wheel /Library/WebObjects/Applications/SampleDeployTest-0iw.woa
 		chmod -R 755 /Library/WebObjects/WebServerResource/SampleDeployTest-0iw.woa
 		chown -R _appserver:wheel /Library/WebObjects/WebServerResource/SampleDeployTest-0iw.woa
-		chmod a+rx /Library/WebObjects/Application/SampleDeployTest-0iw.woa/SampleDeployTest-0iw
+		chmod a+rx /Library/WebObjects/Applications/SampleDeployTest-0iw.woa/SampleDeployTest-0iw
 	
 		rm SampleDeployTest-0iw-Application.tar.gz
 		rm SampleDeployTest-0iw-WebServerResources.tar.gz
@@ -173,19 +173,19 @@ if [ $USE_DEMO == "y" ]; then
 		cd /tmp
 		
 		echo "Downloading Sample Application"
-		curl -O http://dl.dropbox.com/u/1548210/Downloads/WODeployment/SampleDeployNoDB-0iw-Application.tar.gz
-		curl -O http://dl.dropbox.com/u/1548210/Downloads/WODeployment/SampleDeployNoDB-0iw-WebServerResources.tar.gz
+		curl -O https://dl.dropboxusercontent.com/u/1548210/Downloads/WODeployment/SampleDeployNoDB-0iw-Application.tar.gz
+		curl -O https://dl.dropboxusercontent.com/u/1548210/Downloads/WODeployment/SampleDeployNoDB-0iw-WebServerResources.tar.gz
 	
 		echo "Unpacking Sample Application"
-		tar xfz SampleDeployNoDB-0iw-Application.tar.gz  -C /Library/WebObjects/Application
+		tar xfz SampleDeployNoDB-0iw-Application.tar.gz  -C /Library/WebObjects/Applications
 		tar xfz SampleDeployNoDB-0iw-WebServerResources.tar.gz -C /Library/WebObjects/WebServerResource
 		
 		echo "Installing Sample Application"
-		chmod -R 755 /Library/WebObjects/Application/SampleDeployNoDB-0iw.woa
-		chown -R _appserver:wheel /Library/WebObjects/Application/SampleDeployNoDB-0iw.woa
+		chmod -R 755 /Library/WebObjects/Applications/SampleDeployNoDB-0iw.woa
+		chown -R _appserver:wheel /Library/WebObjects/Applications/SampleDeployNoDB-0iw.woa
 		chmod -R 755 /Library/WebObjects/WebServerResource/SampleDeployNoDB-0iw.woa
 		chown -R _appserver:wheel /Library/WebObjects/WebServerResource/SampleDeployNoDB-0iw.woa    
-		chmod a+rx /Library/WebObjects/Application/SampleDeployNoDB-0iw.woa/SampleDeployNoDB-0iw
+		chmod a+rx /Library/WebObjects/Applications/SampleDeployNoDB-0iw.woa/SampleDeployNoDB-0iw
 		
 		rm SampleDeployNoDB-0iw-Application.tar.gz
 		rm SampleDeployNoDB-0iw-WebServerResources.tar.gz
@@ -202,11 +202,11 @@ if [ ! -f mod_WebObjects.so ]; then
 	echo "Installing Apache configuration"
 
 	##http://webobjects.mdimension.com/wonder/mod_WebObjects/Apache2.2/macosx/10.6/mod_WebObjects.so
-	curl -C - -O http://dl.dropbox.com/u/1548210/Downloads/WODeployment/mod_WebObjects.so
+	curl -C - -O https://dl.dropboxusercontent.com/u/1548210/Downloads/WODeployment/mod_WebObjects.so
 
-	curl -C - -O http://dl.dropbox.com/u/1548210/Downloads/WODeployment/wo_apache.conf
-	curl -C - -O http://dl.dropbox.com/u/1548210/Downloads/WODeployment/wo_expires.conf
-	curl -C - -O http://dl.dropbox.com/u/1548210/Downloads/WODeployment/wo_rewrite.conf
+	curl -C - -O https://dl.dropboxusercontent.com/u/1548210/Downloads/WODeployment/wo_apache.conf
+	curl -C - -O https://dl.dropboxusercontent.com/u/1548210/Downloads/WODeployment/wo_expires.conf
+	curl -C - -O https://dl.dropboxusercontent.com/u/1548210/Downloads/WODeployment/wo_rewrite.conf
 	chown -R _appserver:_appserveradm /Library/WebObjects/Adaptors
 
 	cd /etc/apache2
